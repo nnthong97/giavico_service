@@ -1,0 +1,61 @@
+package com.giavico.beverage.api.controller;
+
+import com.giavico.beverage.api.dto.ChatRequest;
+import com.giavico.beverage.api.dto.ChatMessageResponse;
+import com.giavico.beverage.api.dto.ChatMessageStoreRequest;
+import com.giavico.beverage.api.dto.ChatResponse;
+import com.giavico.beverage.service.ChatPersistenceService;
+import com.giavico.beverage.service.OllamaFormulationService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+
+@Validated
+@RestController
+@RequestMapping("/api/chat")
+public class ChatController {
+
+    private final OllamaFormulationService formulationService;
+    private final ChatPersistenceService chatPersistenceService;
+
+    public ChatController(OllamaFormulationService formulationService, ChatPersistenceService chatPersistenceService) {
+        this.formulationService = formulationService;
+        this.chatPersistenceService = chatPersistenceService;
+    }
+
+    @PostMapping
+    public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
+        return formulationService.chat(request.message());
+    }
+
+    @PostMapping(value = "/stream", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<String>> chatStream(@Valid @RequestBody ChatRequest request) {
+        return formulationService.chatStream(request.message());
+    }
+
+    @GetMapping("/messages")
+    public Page<ChatMessageResponse> listMessages(@PageableDefault(size = 100) Pageable pageable) {
+        return chatPersistenceService.list(pageable);
+    }
+
+    @PostMapping("/messages")
+    public ChatMessageResponse storeMessage(@Valid @RequestBody ChatMessageStoreRequest request) {
+        return chatPersistenceService.store(request);
+    }
+
+    @DeleteMapping("/messages")
+    public void clearMessages() {
+        chatPersistenceService.clear();
+    }
+}

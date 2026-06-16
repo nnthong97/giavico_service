@@ -1,0 +1,39 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: giavico-formulation-mysql
+    environment:
+      MYSQL_DATABASE: giavico_formulation
+      MYSQL_USER: giavico
+      MYSQL_PASSWORD: giavico
+      MYSQL_ROOT_PASSWORD: giavico_root
+    ports:
+      - "3306:3306"
+    volumes:
+      - giavico_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ugiavico", "-pgiavico"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  beverage-formulation-engine:
+    build: .
+    container_name: giavico-beverage-formulation-engine
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/giavico_formulation?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: giavico
+      SPRING_DATASOURCE_PASSWORD: giavico
+      SERVER_PORT: 18080
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: gemma4
+    ports:
+      - "18080:18080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  giavico_mysql_data:
