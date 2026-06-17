@@ -1,0 +1,16 @@
+com/giavico/beverage/config/CorsConfig.class
+com/giavico/beverage/persistence/entity/InventoryMovementEntity.class
+com/giavico/beverage/InventoryServiceApplication.class
+com/giavico/beverage/exception/GlobalExceptionHandler.class
+com/giavico/beverage/exception/InventoryItemNotFoundException.class
+com/giavico/beverage/persistence/entity/InventoryItemEntity.class
+com/giavico/beverage/api/dto/InventoryMovementRequest.class
+com/giavico/beverage/api/dto/InventoryItemRequest.class
+com/giavico/beverage/api/dto/InventoryMovementResponse.class
+com/giavico/beverage/api/controller/InventoryManagementController.class
+com/giavico/beverage/persistence/repository/InventoryItemRepository.class
+com/giavico/beverage/persistence/repository/InventoryMovementRepository.class
+com/giavico/beverage/api/dto/ErrorResponse.class
+com/giavico/beverage/api/dto/InventoryItemResponse.class
+com/giavico/beverage/exception/InventoryValidationException.class
+com/giavico/beverage/service/InventoryManagementService.class

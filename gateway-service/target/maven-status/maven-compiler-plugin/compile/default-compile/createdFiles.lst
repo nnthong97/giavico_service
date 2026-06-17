@@ -1,0 +1,5 @@
+com/giavico/gateway/config/WebClientConfig.class
+com/giavico/gateway/config/GatewayCorsConfig.class
+com/giavico/gateway/GatewayServiceApplication.class
+com/giavico/gateway/config/GatewayRouteProperties.class
+com/giavico/gateway/controller/GatewayProxyController.class

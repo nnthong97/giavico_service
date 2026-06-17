@@ -1,4 +1,6 @@
+.m2
 target
+**/target
 .git
 .idea
 .vscode
