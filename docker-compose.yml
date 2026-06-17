@@ -18,11 +18,39 @@ services:
       timeout: 5s
       retries: 10
 
-  formula-service:
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: giavico-phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: giavico
+      PMA_PASSWORD: giavico
+    ports:
+      - "8088:80"
+
+  rnd-document-service:
     build:
       context: .
-      dockerfile: formula-service/Dockerfile
-    container_name: giavico-formula-service
+      dockerfile: rnd-document-service/Dockerfile
+    container_name: giavico-rnd-document-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/giavico_rnd_documents?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: giavico
+      SPRING_DATASOURCE_PASSWORD: giavico
+      SERVER_PORT: 8084
+      GIAVICO_CORS_ALLOWED_ORIGINS: http://localhost:4200
+    ports:
+      - "8084:8084"
+
+  beverage-formulation-engine:
+    build: .
+    container_name: giavico-beverage-formulation-engine
     depends_on:
       mysql:
         condition: service_healthy

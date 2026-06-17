@@ -1,12 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:giavico_formulation;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://localhost:3306/giavico_formulation?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: giavico
+    password: giavico
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
-  h2:
-    console:
-      enabled: true
+      ddl-auto: update
