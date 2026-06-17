@@ -1,0 +1,5 @@
+/Users/duc/Workspaces/giavico_service/gateway-service/src/main/java/com/giavico/gateway/GatewayServiceApplication.java
+/Users/duc/Workspaces/giavico_service/gateway-service/src/main/java/com/giavico/gateway/config/GatewayCorsConfig.java
+/Users/duc/Workspaces/giavico_service/gateway-service/src/main/java/com/giavico/gateway/config/GatewayRouteProperties.java
+/Users/duc/Workspaces/giavico_service/gateway-service/src/main/java/com/giavico/gateway/config/WebClientConfig.java
+/Users/duc/Workspaces/giavico_service/gateway-service/src/main/java/com/giavico/gateway/controller/GatewayProxyController.java

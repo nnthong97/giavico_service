@@ -44,6 +44,16 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI(), null);
     }
 
+    @ExceptionHandler(InventoryItemNotFoundException.class)
+    ResponseEntity<ErrorResponse> handleInventoryItemNotFound(InventoryItemNotFoundException exception, HttpServletRequest request) {
+        return build(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(InventoryValidationException.class)
+    ResponseEntity<ErrorResponse> handleInventoryValidation(InventoryValidationException exception, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI(), null);
+    }
+
     @ExceptionHandler(StreamChunkParsingException.class)
     ResponseEntity<ErrorResponse> handleStreamParsing(StreamChunkParsingException exception, HttpServletRequest request) {
         return build(HttpStatus.BAD_GATEWAY,

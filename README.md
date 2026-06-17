@@ -1,96 +1,125 @@
-# Beverage Formulation & R&D Engine
+# Giavico Beverage Microservices
 
-Production-oriented Spring Boot REST microservice for beverage formulation workflows, recipe matrix tracking, mass-balance validation, and local Ollama-assisted generation.
+Spring Boot microservice workspace for Giavico beverage R&D, formula management, inventory management, and Ollama-backed AI chat/generation.
 
-## Runtime
+## Services
 
-- Java 21, compatible with Java 17+ source patterns
-- Spring Boot 3.3.5
-- MySQL 8.4
-- Local Ollama endpoint: `http://localhost:11434/api/generate`
-- Default model: `gemma4`
+| Service | Port | Responsibility |
+| --- | ---: | --- |
+| `gateway-service` | `8080` | Single Angular entrypoint and reverse proxy |
+| `formula-service` | `8081` | Formula generation, formula CRUD, product variants |
+| `inventory-service` | `8082` | Inventory item master, stock movements, low-stock alerts |
+| `chat-ai-service` | `8083` | Chat APIs, Ollama chat streaming, chat history |
 
-## Endpoints
+Angular should call the gateway:
 
-### Store formula
+```text
+http://localhost:8080
+```
 
-`POST /api/formulas`
+## Gateway Routes
 
-Stores a formula from the UI or another service without calling Ollama.
+```text
+/api/formulas/**   -> formula-service
+/api/inventory/**  -> inventory-service
+/api/chat/**       -> chat-ai-service
+```
 
-### List saved formulas
+The gateway is implemented with Spring WebFlux and `WebClient` so the project does not need a new Spring Cloud dependency.
 
-`GET /api/formulas?page=0&size=20`
+## Run Locally
 
-Returns a paginated list of saved formula sessions.
+Run all modules through Maven:
 
-### Formula detail
+```bash
+mvn -q -Dmaven.repo.local=.m2/repository test
+```
 
-`GET /api/formulas/{uuid}`
+Run one service:
 
-Returns the full saved formula, including ingredients, alerts, restrictions, and variance analysis.
+```bash
+mvn -pl gateway-service spring-boot:run
+mvn -pl formula-service spring-boot:run
+mvn -pl inventory-service spring-boot:run
+mvn -pl chat-ai-service spring-boot:run
+```
 
-### Update formula
+Direct service runs use in-memory H2 by default so they do not require local MySQL schemas or grants. Docker Compose overrides the datasource settings to use MySQL.
 
-`PUT /api/formulas/{uuid}`
+To run one service against a local MySQL schema, pass datasource environment variables:
 
-Replaces the saved formula payload using the same body shape as `POST /api/formulas`.
+```bash
+SPRING_DATASOURCE_URL='jdbc:mysql://localhost:3306/giavico_formula?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC' \
+SPRING_DATASOURCE_USERNAME=giavico \
+SPRING_DATASOURCE_PASSWORD=giavico \
+SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver \
+mvn -pl formula-service spring-boot:run
+```
 
-### Delete formula
-
-`DELETE /api/formulas/{uuid}`
-
-Deletes the saved formula and its variant tracking relation.
-
-### Complete generation
-
-`POST /api/formulas/generate`
-
-Returns a validated and persisted formula response.
-
-### Streaming generation
-
-`POST /api/formulas/generate/stream`
-
-Returns `text/event-stream` fragments from Ollama's newline-delimited stream.
-
-`GET /api/formulas/generate/stream`
-
-Supports query-param driven SSE generation for simple Angular EventSource flows.
-
-## Docker
+## Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-For direct local runs, the API defaults to `http://localhost:18181` to avoid common port `8080` and Docker Desktop `18080` conflicts:
+Compose starts:
 
-```bash
-mvn spring-boot:run
+- one MySQL container
+- separate schemas: `giavico_formula`, `giavico_inventory`, `giavico_chat`
+- `gateway-service`
+- `formula-service`
+- `inventory-service`
+- `chat-ai-service`
+
+Ollama is expected on the host:
+
+```text
+http://host.docker.internal:11434
 ```
 
-To force another port:
+## Formula APIs
 
-```bash
-SERVER_PORT=8081 mvn spring-boot:run
+```text
+POST   /api/formulas
+GET    /api/formulas?page=0&size=20
+GET    /api/formulas/{uuid}
+PUT    /api/formulas/{uuid}
+DELETE /api/formulas/{uuid}
+POST   /api/formulas/generate
+POST   /api/formulas/generate/stream
+GET    /api/formulas/generate/stream
 ```
 
-Docker Compose still exposes the API on `http://localhost:8080`. The compose file maps the service to a host Ollama instance with `host.docker.internal:11434`.
+## Inventory APIs
 
-If `mvn spring-boot:run` reports that a port is already in use, override it with `SERVER_PORT=8081 mvn spring-boot:run`. Docker keeps `8080` by setting `SERVER_PORT=8080` inside `docker-compose.yml`.
-
-## Request Contract
-
-```json
-{
-  "drinkName": "Yuzu Honey Green Tea",
-  "marketDestination": "APAC - Japan Region",
-  "targetBrix": 9.5,
-  "isAcidified": true,
-  "regionalRestrictions": ["No artificial colors", "Japan compliant labeling"],
-  "productionArea": "Factory Line 4B - High-shear mixing tank",
-  "customerSpecification": "Bright yuzu aroma, light tea bitterness, shelf-stable ambient product.",
-  "baselineBOM": "BOM-YUZU-GT-001"
-}
+```text
+GET    /api/inventory/items?search=yuzu&status=ACTIVE&page=0&size=20
+POST   /api/inventory/items
+GET    /api/inventory/items/{uuid}
+GET    /api/inventory/items/by-raw-material-key/{rawMaterialKey}
+PUT    /api/inventory/items/{uuid}
+DELETE /api/inventory/items/{uuid}
+POST   /api/inventory/items/{uuid}/movements
+GET    /api/inventory/items/{uuid}/movements?page=0&size=50
+GET    /api/inventory/alerts/low-stock
 ```
+
+Movement types are `RECEIPT`, `ISSUE`, and `ADJUSTMENT`.
+
+## Chat APIs
+
+```text
+POST   /api/chat
+POST   /api/chat/stream
+GET    /api/chat/messages?page=0&size=100
+POST   /api/chat/messages
+DELETE /api/chat/messages
+```
+
+## Service Data Ownership
+
+- Formula service owns formula/product tables.
+- Inventory service owns inventory item and movement tables.
+- Chat AI service owns chat message tables.
+- Services do not share JPA entities or cross-database foreign keys.
+- `rawMaterialKey` is the integration contract between formulas and inventory.

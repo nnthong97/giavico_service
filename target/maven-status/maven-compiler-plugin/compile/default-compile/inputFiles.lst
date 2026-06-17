@@ -1,6 +1,7 @@
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/BeverageFormulationEngineApplication.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/controller/ChatController.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/controller/FormulaController.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/controller/InventoryManagementController.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/ChatMessageResponse.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/ChatMessageStoreRequest.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/ChatRequest.java
@@ -12,6 +13,10 @@
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/FormulaListItem.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/FormulaStoreRequest.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/IngredientComponent.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/InventoryItemRequest.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/InventoryItemResponse.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/InventoryMovementRequest.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/InventoryMovementResponse.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/api/dto/SavedFormulaMetadata.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/config/CorsConfig.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/config/OllamaProperties.java
@@ -20,6 +25,8 @@
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/exception/CompleteResponseParsingException.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/exception/FormulaNotFoundException.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/exception/GlobalExceptionHandler.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/exception/InventoryItemNotFoundException.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/exception/InventoryValidationException.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/exception/OllamaServiceException.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/exception/StreamChunkParsingException.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/ollama/OllamaGenerateChunk.java
@@ -27,12 +34,17 @@
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/entity/ChatMessageEntity.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/entity/FormulaIngredientEntity.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/entity/FormulaSessionEntity.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/entity/InventoryItemEntity.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/entity/InventoryMovementEntity.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/entity/ProductEntity.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/entity/ProductVariantEntity.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/repository/ChatMessageRepository.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/repository/FormulaSessionRepository.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/repository/InventoryItemRepository.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/repository/InventoryMovementRepository.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/repository/ProductRepository.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/persistence/repository/ProductVariantRepository.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/service/ChatPersistenceService.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/service/FormulaPersistenceService.java
+/Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/service/InventoryManagementService.java
 /Users/duc/Workspaces/giavico_service/src/main/java/com/giavico/beverage/service/OllamaFormulationService.java

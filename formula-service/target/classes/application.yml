@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: formula-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:giavico_formula;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:8081}
+  shutdown: graceful
+
+giavico:
+  cors:
+    allowed-origins: ${GIAVICO_CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+ollama:
+  base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+  generate-path: ${OLLAMA_GENERATE_PATH:/api/generate}
+  model: ${OLLAMA_MODEL:gemma4}
+  timeout: ${OLLAMA_TIMEOUT:PT5M}
+  connect-timeout: ${OLLAMA_CONNECT_TIMEOUT:PT10S}
