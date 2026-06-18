@@ -48,9 +48,11 @@ services:
     ports:
       - "8084:8084"
 
-  beverage-formulation-engine:
-    build: .
-    container_name: giavico-beverage-formulation-engine
+  formula-service:
+    build:
+      context: .
+      dockerfile: formula-service/Dockerfile
+    container_name: giavico-formula-service
     depends_on:
       mysql:
         condition: service_healthy
