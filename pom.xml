@@ -22,6 +22,7 @@
         <module>formula-service</module>
         <module>inventory-service</module>
         <module>chat-ai-service</module>
+        <module>rnd-document-service</module>
     </modules>
 
     <properties>

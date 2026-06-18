@@ -40,7 +40,7 @@ public class GatewayProxyController {
         this.routeProperties = routeProperties;
     }
 
-    @RequestMapping({"/api/formulas/**", "/api/inventory/**", "/api/chat/**"})
+    @RequestMapping({"/api/formulas/**", "/api/inventory/**", "/api/chat/**", "/api/rnd-documents/**"})
     public Mono<ResponseEntity<Flux<DataBuffer>>> proxy(
             ServerWebExchange exchange,
             @RequestBody(required = false) Mono<byte[]> requestBody
@@ -75,6 +75,9 @@ public class GatewayProxyController {
         }
         if (path.startsWith("/api/chat")) {
             return routeProperties.chatAiServiceUrl();
+        }
+        if (path.startsWith("/api/rnd-documents")) {
+            return routeProperties.rndDocumentServiceUrl();
         }
         throw new IllegalArgumentException("No route configured for path: " + path);
     }

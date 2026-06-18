@@ -13,6 +13,7 @@ giavico:
     formula-service-url: ${FORMULA_SERVICE_URL:http://localhost:8081}
     inventory-service-url: ${INVENTORY_SERVICE_URL:http://localhost:8082}
     chat-ai-service-url: ${CHAT_AI_SERVICE_URL:http://localhost:8083}
+    rnd-document-service-url: ${RND_DOCUMENT_SERVICE_URL:http://localhost:8084}
 
 management:
   endpoints:

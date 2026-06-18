@@ -9,6 +9,8 @@ import org.springframework.validation.annotation.Validated;
 public record GatewayRouteProperties(
         @NotBlank String formulaServiceUrl,
         @NotBlank String inventoryServiceUrl,
-        @NotBlank String chatAiServiceUrl
+
+        @NotBlank String chatAiServiceUrl,
+        @NotBlank String rndDocumentServiceUrl
 ) {
 }

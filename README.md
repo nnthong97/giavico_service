@@ -44,9 +44,9 @@ mvn -pl inventory-service spring-boot:run
 mvn -pl chat-ai-service spring-boot:run
 ```
 
-Direct service runs use in-memory H2 by default so they do not require local MySQL schemas or grants. Docker Compose overrides the datasource settings to use MySQL.
+Direct service runs use MySQL by default. Start the MySQL container first, or run against another MySQL instance with the same schemas and credentials.
 
-To run one service against a local MySQL schema, pass datasource environment variables:
+To run one service against a different MySQL schema or user, pass datasource environment variables:
 
 ```bash
 SPRING_DATASOURCE_URL='jdbc:mysql://localhost:3306/giavico_formula?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC' \
