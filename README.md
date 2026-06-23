@@ -82,6 +82,28 @@ Ollama is expected on the host:
 http://host.docker.internal:11434
 ```
 
+## CI/CD
+
+GitHub Actions runs the pipeline in `.github/workflows/ci-cd.yml`.
+
+On pull requests and pushes to `main`, `master`, or `develop`, CI:
+
+- sets up Java 21
+- runs `mvn -B -ntp verify` for all Maven modules
+- builds Docker images for `gateway-service`, `formula-service`, `inventory-service`, `chat-ai-service`, and `rnd-document-service`
+
+On pushes to `main`, `master`, or version tags like `v1.0.0`, CD publishes each service image to GitHub Container Registry:
+
+```text
+ghcr.io/<github-owner>/gateway-service
+ghcr.io/<github-owner>/formula-service
+ghcr.io/<github-owner>/inventory-service
+ghcr.io/<github-owner>/chat-ai-service
+ghcr.io/<github-owner>/rnd-document-service
+```
+
+The workflow uses the repository `GITHUB_TOKEN`, so no extra registry secret is required for GitHub Container Registry.
+
 ## Formula APIs
 
 ```text
