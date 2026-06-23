@@ -12,5 +12,5 @@ public final class DocumentRequests {
     public record Save(@NotNull DocumentType type, @NotBlank String title, @NotBlank String productName,
                        String formulaUuid, @NotBlank String market, @NotBlank String owner,
                        LocalDate effectiveDate, @NotNull Map<String, Object> fieldValues) {}
-    public record Workflow(@NotBlank String actor, String comment) {}
+    public record Workflow(@NotBlank String actor, String comment, String role) {}
 }

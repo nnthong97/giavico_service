@@ -42,7 +42,7 @@ public class RndDocumentEntity {
     }
     public void transition(DocumentStatus nextStatus) { status = nextStatus; updatedAt = Instant.now(); }
     public void incrementRevision() { revision++; }
-    public void addApproval(String action, String actor, String comment) { approvals.add(new DocumentApprovalEntity(this, action, actor, comment)); }
+    public void addApproval(String action, String actor, String role, String comment) { approvals.add(new DocumentApprovalEntity(this, action, actor, role, revision, comment)); }
     public void addRevision(String changedBy, String summary) { revisions.add(new DocumentRevisionEntity(this, revision, status, changedBy, summary)); }
     private String blankToNull(String value) { return value == null || value.isBlank() ? null : value.trim(); }
     public UUID getId() { return id; } public String getDocumentNumber() { return documentNumber; }
