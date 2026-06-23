@@ -10,6 +10,7 @@ Spring Boot microservice workspace for Giavico beverage R&D, formula management,
 | `formula-service` | `8081` | Formula generation, formula CRUD, product variants |
 | `inventory-service` | `8082` | Inventory item master, stock movements, low-stock alerts |
 | `chat-ai-service` | `8083` | Chat APIs, Ollama chat streaming, chat history |
+| `rnd-document-service` | `8084` | Controlled R&D templates, workflow, revisions, and printable exports |
 
 Angular should call the gateway:
 
@@ -23,6 +24,7 @@ http://localhost:8080
 /api/formulas/**   -> formula-service
 /api/inventory/**  -> inventory-service
 /api/chat/**       -> chat-ai-service
+/api/rnd-documents/** -> rnd-document-service
 ```
 
 The gateway is implemented with Spring WebFlux and `WebClient` so the project does not need a new Spring Cloud dependency.
@@ -42,6 +44,7 @@ mvn -pl gateway-service spring-boot:run
 mvn -pl formula-service spring-boot:run
 mvn -pl inventory-service spring-boot:run
 mvn -pl chat-ai-service spring-boot:run
+mvn -pl rnd-document-service spring-boot:run
 ```
 
 Direct service runs use MySQL by default. Start the MySQL container first, or run against another MySQL instance with the same schemas and credentials.
@@ -66,10 +69,12 @@ Compose starts:
 
 - one MySQL container
 - separate schemas: `giavico_formula`, `giavico_inventory`, `giavico_chat`
+- R&D document schema: `giavico_rnd_documents`
 - `gateway-service`
 - `formula-service`
 - `inventory-service`
 - `chat-ai-service`
+- `rnd-document-service`
 
 Ollama is expected on the host:
 
@@ -116,10 +121,28 @@ POST   /api/chat/messages
 DELETE /api/chat/messages
 ```
 
+## R&D Document APIs
+
+```text
+GET    /api/rnd-documents/templates
+GET    /api/rnd-documents/templates/{type}
+GET    /api/rnd-documents/templates/{type}/source
+POST   /api/rnd-documents
+GET    /api/rnd-documents?page=0&size=20&status=DRAFT&search=mango
+GET    /api/rnd-documents/{uuid}
+PUT    /api/rnd-documents/{uuid}
+DELETE /api/rnd-documents/{uuid}
+GET    /api/rnd-documents/{uuid}/print
+POST   /api/rnd-documents/{uuid}/{workflow-action}
+```
+
+Workflow actions are `submit`, `start-review`, `approve`, `request-changes`, `issue`, and `acknowledge`. The template catalog includes the official blank PDF, trilingual names and fields, required-field metadata, table-column definitions, and approval roles.
+
 ## Service Data Ownership
 
 - Formula service owns formula/product tables.
 - Inventory service owns inventory item and movement tables.
 - Chat AI service owns chat message tables.
+- R&D document service owns controlled document, approval, and revision tables.
 - Services do not share JPA entities or cross-database foreign keys.
 - `rawMaterialKey` is the integration contract between formulas and inventory.

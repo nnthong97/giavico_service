@@ -1,0 +1,4 @@
+com/giavico/rnd/service/DocumentPdfExportServiceTest.class
+com/giavico/rnd/service/DocumentFieldValidatorTest.class
+com/giavico/rnd/service/DocumentTemplateCatalogTest.class
+com/giavico/rnd/service/RndDocumentManagementServiceTest.class
