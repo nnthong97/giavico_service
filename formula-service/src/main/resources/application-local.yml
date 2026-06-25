@@ -1,9 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/giavico_formula?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: giavico
-    password: giavico
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update

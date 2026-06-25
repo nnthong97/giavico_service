@@ -3,7 +3,7 @@ services:
     image: mysql:8.4
     container_name: giavico-mysql
     environment:
-      MYSQL_DATABASE: giavico_formula
+      MYSQL_DATABASE: giavico
       MYSQL_USER: giavico
       MYSQL_PASSWORD: giavico
       MYSQL_ROOT_PASSWORD: giavico_root
@@ -22,7 +22,8 @@ services:
     image: phpmyadmin:latest
     container_name: giavico-phpmyadmin
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
@@ -31,99 +32,27 @@ services:
     ports:
       - "8088:80"
 
-  rnd-document-service:
+  giavico-service:
     build:
       context: .
-      dockerfile: rnd-document-service/Dockerfile
-    container_name: giavico-rnd-document-service
+      dockerfile: Dockerfile
+    container_name: giavico-service
     depends_on:
       mysql:
         condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/giavico_rnd_documents?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: giavico
-      SPRING_DATASOURCE_PASSWORD: giavico
-      SERVER_PORT: 8084
-      GIAVICO_CORS_ALLOWED_ORIGINS: http://localhost:4200
-    ports:
-      - "8084:8084"
-
-  formula-service:
-    build:
-      context: .
-      dockerfile: formula-service/Dockerfile
-    container_name: giavico-formula-service
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      SERVER_PORT: 8081
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/giavico_formula?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: giavico
-      SPRING_DATASOURCE_PASSWORD: giavico
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
-      OLLAMA_MODEL: gemma4
-    ports:
-      - "8081:8081"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  inventory-service:
-    build:
-      context: .
-      dockerfile: inventory-service/Dockerfile
-    container_name: giavico-inventory-service
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      SERVER_PORT: 8082
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/giavico_inventory?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: giavico
-      SPRING_DATASOURCE_PASSWORD: giavico
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-    ports:
-      - "8082:8082"
-
-  chat-ai-service:
-    build:
-      context: .
-      dockerfile: chat-ai-service/Dockerfile
-    container_name: giavico-chat-ai-service
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      SERVER_PORT: 8083
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/giavico_chat?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: giavico
-      SPRING_DATASOURCE_PASSWORD: giavico
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
-      OLLAMA_MODEL: gemma4
-    ports:
-      - "8083:8083"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  gateway-service:
-    build:
-      context: .
-      dockerfile: gateway-service/Dockerfile
-    container_name: giavico-gateway-service
-    depends_on:
-      - formula-service
-      - inventory-service
-      - chat-ai-service
     environment:
       SERVER_PORT: 8080
-      FORMULA_SERVICE_URL: http://formula-service:8081
-      INVENTORY_SERVICE_URL: http://inventory-service:8082
-      CHAT_AI_SERVICE_URL: http://chat-ai-service:8083
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/giavico?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: giavico
+      SPRING_DATASOURCE_PASSWORD: giavico
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: gemma4
       GIAVICO_CORS_ALLOWED_ORIGINS: http://localhost:4200
     ports:
       - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   giavico_mysql_data:

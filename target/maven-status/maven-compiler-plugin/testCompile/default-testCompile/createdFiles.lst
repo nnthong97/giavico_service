@@ -1,0 +1,6 @@
+com/giavico/rnd/service/RndDocumentManagementServiceTest.class
+com/giavico/GiavicoApiIntegrationTest.class
+com/giavico/rnd/service/DocumentPdfExportServiceTest.class
+com/giavico/rnd/service/DocumentFieldValidatorTest.class
+com/giavico/rnd/service/DocumentTemplateCatalogTest.class
+com/giavico/beverage/service/OllamaServiceIntegrationTest.class
