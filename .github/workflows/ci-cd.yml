@@ -2,23 +2,16 @@ name: CI/CD
 
 on:
   pull_request:
-    branches:
-      - main
-      - master
-      - develop
+    branches: [main, master, develop]
   push:
-    branches:
-      - main
-      - master
-      - develop
-    tags:
-      - "v*.*.*"
+    branches: [main, master, develop]
+    tags: ["v*.*.*"]
   workflow_dispatch:
 
 env:
-  JAVA_VERSION: "21"
+  JAVA_VERSION: "17"
   REGISTRY: ghcr.io
-  IMAGE_NAMESPACE: ${{ github.repository_owner }}
+  IMAGE_NAME: ${{ github.repository_owner }}/giavico-service
 
 permissions:
   contents: read
@@ -29,51 +22,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Maven verify
+  verify:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
-
-      - name: Verify all services
+      - name: Verify monolith
         run: mvn -B -ntp verify
 
   docker:
-    name: Docker image / ${{ matrix.service }}
     runs-on: ubuntu-latest
-    needs: test
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - service: gateway-service
-            dockerfile: gateway-service/Dockerfile
-          - service: formula-service
-            dockerfile: formula-service/Dockerfile
-          - service: inventory-service
-            dockerfile: inventory-service/Dockerfile
-          - service: chat-ai-service
-            dockerfile: chat-ai-service/Dockerfile
-          - service: rnd-document-service
-            dockerfile: rnd-document-service/Dockerfile
-
+    needs: verify
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
       - name: Log in to GitHub Container Registry
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
         uses: docker/login-action@v3
@@ -81,25 +47,23 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Extract image metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ matrix.service }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,prefix=
             type=ref,event=branch
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
-
       - name: Build image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=${{ matrix.service }}
-          cache-to: type=gha,scope=${{ matrix.service }},mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           push: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')) }}

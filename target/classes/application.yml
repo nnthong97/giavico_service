@@ -1,14 +1,14 @@
 spring:
   application:
-    name: beverage-formulation-engine
+    name: giavico-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/giavico_formulation?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/giavico?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${SPRING_DATASOURCE_USERNAME:giavico}
     password: ${SPRING_DATASOURCE_PASSWORD:giavico}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     open-in-view: false
     properties:
       hibernate:
@@ -17,7 +17,7 @@ spring:
     default-property-inclusion: non_null
 
 server:
-  port: ${SERVER_PORT:18181}
+  port: ${SERVER_PORT:8080}
   shutdown: graceful
 
 giavico:

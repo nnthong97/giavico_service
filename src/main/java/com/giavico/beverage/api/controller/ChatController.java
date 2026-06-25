@@ -4,8 +4,9 @@ import com.giavico.beverage.api.dto.ChatRequest;
 import com.giavico.beverage.api.dto.ChatMessageResponse;
 import com.giavico.beverage.api.dto.ChatMessageStoreRequest;
 import com.giavico.beverage.api.dto.ChatResponse;
+import com.giavico.beverage.config.OllamaProperties;
 import com.giavico.beverage.service.ChatPersistenceService;
-import com.giavico.beverage.service.OllamaFormulationService;
+import com.giavico.beverage.service.OllamaChatService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,27 +22,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
+import java.util.Map;
+
 @Validated
 @RestController
 @RequestMapping("/api/chat")
 public class ChatController {
 
-    private final OllamaFormulationService formulationService;
+    private final OllamaChatService chatService;
     private final ChatPersistenceService chatPersistenceService;
+    private final OllamaProperties ollamaProperties;
 
-    public ChatController(OllamaFormulationService formulationService, ChatPersistenceService chatPersistenceService) {
-        this.formulationService = formulationService;
+    public ChatController(
+            OllamaChatService chatService,
+            ChatPersistenceService chatPersistenceService,
+            OllamaProperties ollamaProperties
+    ) {
+        this.chatService = chatService;
         this.chatPersistenceService = chatPersistenceService;
+        this.ollamaProperties = ollamaProperties;
     }
 
     @PostMapping
     public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
-        return formulationService.chat(request.message());
+        return chatService.chat(request.message());
     }
 
     @PostMapping(value = "/stream", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> chatStream(@Valid @RequestBody ChatRequest request) {
-        return formulationService.chatStream(request.message());
+        return chatService.chatStream(request.message());
     }
 
     @GetMapping("/messages")
@@ -57,5 +66,14 @@ public class ChatController {
     @DeleteMapping("/messages")
     public void clearMessages() {
         chatPersistenceService.clear();
+    }
+
+    @GetMapping("/account/openai-key/status")
+    public Map<String, Object> aiProviderStatus() {
+        return Map.of(
+                "configured", true,
+                "provider", "ollama",
+                "model", ollamaProperties.model()
+        );
     }
 }
