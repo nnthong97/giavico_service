@@ -57,6 +57,31 @@ mvn verify
 Tests use an in-memory H2 database. Live Ollama is not required for the test
 suite.
 
+## Deploy to Render
+
+The repository includes `render.yaml` and a root `Dockerfile`.
+
+Before deploying, prepare:
+
+1. A MySQL 8 database reachable from Render.
+2. A hosted Ollama-compatible endpoint if formula generation and chat should
+   work in production. Render cannot connect to Ollama running on your laptop.
+3. The deployed frontend origin for CORS, such as
+   `https://your-frontend.example.com`.
+
+Create a Render Blueprint from this repository and enter these prompted values:
+
+```text
+SPRING_DATASOURCE_URL=jdbc:mysql://<host>:3306/giavico?useSSL=true&serverTimezone=UTC
+SPRING_DATASOURCE_USERNAME=<database-user>
+SPRING_DATASOURCE_PASSWORD=<database-password>
+GIAVICO_CORS_ALLOWED_ORIGINS=https://<frontend-domain>
+OLLAMA_BASE_URL=https://<hosted-ollama-domain>
+```
+
+The service uses Render's `PORT` automatically and exposes
+`/actuator/health` as its health check.
+
 ## Database
 
 The monolith uses the `giavico` MySQL schema. Hibernate currently manages table
