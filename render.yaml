@@ -20,7 +20,7 @@ services:
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: GIAVICO_CORS_ALLOWED_ORIGINS
-        sync: https://project-6d3au.vercel.app
+        value: https://project-6d3au.vercel.app
       - key: OLLAMA_BASE_URL
         sync: false
       - key: OLLAMA_MODEL
