@@ -1,0 +1,2 @@
+-- The primary `giavico` database is created by POSTGRES_DB on fresh volumes.
+-- docker-compose.yml also runs postgres-init to create it for existing volumes.

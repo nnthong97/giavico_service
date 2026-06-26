@@ -27,10 +27,10 @@ The existing API paths remain stable:
 
 ## Run locally
 
-Start MySQL:
+Start PostgreSQL:
 
 ```bash
-docker compose up mysql phpmyadmin
+docker compose up postgres pgadmin
 ```
 
 Run the application:
@@ -63,7 +63,7 @@ The repository includes `render.yaml` and a root `Dockerfile`.
 
 Before deploying, prepare:
 
-1. A MySQL 8 database reachable from Render.
+1. A PostgreSQL database reachable from Render.
 2. A hosted Ollama-compatible endpoint if formula generation and chat should
    work in production. Render cannot connect to Ollama running on your laptop.
 3. The deployed frontend origin for CORS, such as
@@ -72,7 +72,7 @@ Before deploying, prepare:
 Create a Render Blueprint from this repository and enter these prompted values:
 
 ```text
-SPRING_DATASOURCE_URL=jdbc:mysql://<host>:3306/giavico?useSSL=true&serverTimezone=UTC
+SPRING_DATASOURCE_URL=jdbc:postgresql://<host>:5432/giavico
 SPRING_DATASOURCE_USERNAME=<database-user>
 SPRING_DATASOURCE_PASSWORD=<database-password>
 GIAVICO_CORS_ALLOWED_ORIGINS=https://<frontend-domain>
@@ -84,18 +84,11 @@ The service uses Render's `PORT` automatically and exposes
 
 ## Database
 
-The monolith uses the `giavico` MySQL schema. Hibernate currently manages table
+The monolith uses the `giavico` PostgreSQL database. Hibernate currently manages table
 creation with `ddl-auto=update`.
 
 If data exists in the former service schemas, start the monolith once and then
-run:
-
-```bash
-mysql -ugiavico -p giavico < docs/migrate-legacy-schemas.sql
-```
-
-The migration uses `INSERT IGNORE` and does not alter or delete the legacy
-schemas.
+use the guidance in `docs/migrate-legacy-schemas.md`.
 
 ## Main APIs
 

@@ -1,34 +1,46 @@
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: giavico-mysql
+  postgres:
+    image: postgres:16
+    container_name: giavico-postgres
     environment:
-      MYSQL_DATABASE: giavico
-      MYSQL_USER: giavico
-      MYSQL_PASSWORD: giavico
-      MYSQL_ROOT_PASSWORD: giavico_root
+      POSTGRES_DB: giavico
+      POSTGRES_USER: giavico
+      POSTGRES_PASSWORD: giavico
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - giavico_mysql_data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+      - giavico_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ugiavico", "-pgiavico"]
+      test: ["CMD-SHELL", "pg_isready -U giavico -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 10
 
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: giavico-phpmyadmin
+  postgres-init:
+    image: postgres:16
+    container_name: giavico-postgres-init
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: giavico
-      PMA_PASSWORD: giavico
+      PGPASSWORD: giavico
+    command:
+      - sh
+      - -c
+      - |
+        psql -h postgres -U giavico -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'giavico'" | grep -q 1 \
+          || psql -h postgres -U giavico -d postgres -c "CREATE DATABASE giavico"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: giavico-pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@giavico.example.com
+      PGADMIN_DEFAULT_PASSWORD: giavico
     ports:
       - "8088:80"
 
@@ -38,14 +50,14 @@ services:
       dockerfile: Dockerfile
     container_name: giavico-service
     depends_on:
-      mysql:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     environment:
       SERVER_PORT: 8080
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/giavico?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/giavico
       SPRING_DATASOURCE_USERNAME: giavico
       SPRING_DATASOURCE_PASSWORD: giavico
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       OLLAMA_BASE_URL: http://host.docker.internal:11434
       OLLAMA_MODEL: gemma4
       GIAVICO_CORS_ALLOWED_ORIGINS: http://localhost:4200
@@ -55,4 +67,4 @@ services:
       - "host.docker.internal:host-gateway"
 
 volumes:
-  giavico_mysql_data:
+  giavico_postgres_data:

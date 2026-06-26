@@ -1,12 +1,11 @@
--- Giavico modular-monolith schema
+-- Giavico modular-monolith PostgreSQL database
 --
 -- The application uses the `giavico` database and Hibernate currently creates
 -- or updates these tables at startup. This file documents the owned table set;
 -- it is not used as an initialization migration.
 
-CREATE DATABASE IF NOT EXISTS giavico
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+-- Create the database with docker-compose via POSTGRES_DB=giavico, or manually:
+-- CREATE DATABASE giavico;
 
 -- Formula domain
 -- products
@@ -28,5 +27,5 @@ CREATE DATABASE IF NOT EXISTS giavico
 -- rnd_document_approvals
 -- rnd_document_revisions
 
--- See docs/migrate-legacy-schemas.sql for the optional, non-destructive copy
+-- See docs/migrate-legacy-schemas.md for optional legacy data migration guidance
 -- from the former per-service schemas.
