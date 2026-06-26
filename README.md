@@ -61,6 +61,9 @@ suite.
 
 The repository includes `render.yaml` and a root `Dockerfile`.
 
+For the Supabase Postgres + Render deployment checklist, see
+`docs/deploy-supabase-render.md`.
+
 Before deploying, prepare:
 
 1. A PostgreSQL database reachable from Render.
