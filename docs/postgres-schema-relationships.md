@@ -1,6 +1,6 @@
 # Giavico monolith data relationships
 
-All feature areas use the single `giavico` MySQL schema. Package and table
+All feature areas use the single `giavico` PostgreSQL database. Package and table
 boundaries still separate the internal domains.
 
 ```mermaid

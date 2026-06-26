@@ -23,7 +23,7 @@ public class RndDocumentEntity {
     @Column(nullable = false, length = 160) private String market;
     @Column(nullable = false, length = 160) private String owner;
     @Column(name = "effective_date") private LocalDate effectiveDate;
-    @Lob @Column(name = "field_values", nullable = false, columnDefinition = "LONGTEXT") private String fieldValues;
+    @Lob @Column(name = "field_values", nullable = false, columnDefinition = "TEXT") private String fieldValues;
     @Column(nullable = false) private int revision;
     @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
     @Column(name = "updated_at", nullable = false) private Instant updatedAt;

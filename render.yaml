@@ -10,17 +10,17 @@ services:
     autoDeployTrigger: commit
     envVars:
       - key: SPRING_DATASOURCE_URL
-        sync: false
+        value: postgres://postgres.gfpywsfecithbjyzhklo:M6xdpLfesaKc3Jqg@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
       - key: SPRING_DATASOURCE_USERNAME
-        sync: false
+        value: postgres
       - key: SPRING_DATASOURCE_PASSWORD
-        sync: false
+        value: M6xdpLfesaKc3Jqg
       - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-        value: com.mysql.cj.jdbc.Driver
+        value: org.postgresql.Driver
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: GIAVICO_CORS_ALLOWED_ORIGINS
-        sync: false
+        sync: https://project-6d3au.vercel.app
       - key: OLLAMA_BASE_URL
         sync: false
       - key: OLLAMA_MODEL
