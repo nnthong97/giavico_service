@@ -72,12 +72,17 @@ Before deploying, prepare:
 Create a Render Blueprint from this repository and enter these prompted values:
 
 ```text
-SPRING_DATASOURCE_URL=jdbc:postgresql://<host>:5432/giavico
+SPRING_DATASOURCE_URL=jdbc:postgresql://<host>:<port>/<database>?sslmode=require
 SPRING_DATASOURCE_USERNAME=<database-user>
 SPRING_DATASOURCE_PASSWORD=<database-password>
+SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
 GIAVICO_CORS_ALLOWED_ORIGINS=https://<frontend-domain>
 OLLAMA_BASE_URL=https://<hosted-ollama-domain>
 ```
+
+If the Render service was previously deployed with MySQL, remove or replace any
+old environment variable value for `SPRING_DATASOURCE_DRIVER_CLASS_NAME`.
+It must be `org.postgresql.Driver`, not `com.mysql.cj.jdbc.Driver`.
 
 The service uses Render's `PORT` automatically and exposes
 `/actuator/health` as its health check.
