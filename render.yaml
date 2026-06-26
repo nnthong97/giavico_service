@@ -1,31 +1,30 @@
 services:
-  - type: web
-    name: giavico-service
-    runtime: docker
-    plan: free
-    region: singapore
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    healthCheckPath: /actuator/health
-    autoDeployTrigger: commit
-    envVars:
-      - key: SPRING_DATASOURCE_URL
-        value: postgres://postgres.gfpywsfecithbjyzhklo:M6xdpLfesaKc3Jqg@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
-      - key: SPRING_DATASOURCE_USERNAME
-        value: postgres
-      - key: SPRING_DATASOURCE_PASSWORD
-        value: M6xdpLfesaKc3Jqg
-      - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-        value: org.postgresql.Driver
-      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
-        value: update
-      - key: GIAVICO_CORS_ALLOWED_ORIGINS
-        value: https://project-6d3au.vercel.app
-      - key: OLLAMA_BASE_URL
-        sync: false
-      - key: OLLAMA_MODEL
-        value: gemma4
-      - key: OLLAMA_TIMEOUT
-        value: PT5M
-      - key: OLLAMA_CONNECT_TIMEOUT
-        value: PT10S
+- type: web
+  name: giavico-service
+  runtime: docker
+  repo: https://github.com/nnthong97/giavico_service
+  plan: free
+  envVars:
+  - key: GIAVICO_CORS_ALLOWED_ORIGINS
+    value: https://project-6d3au.vercel.app
+  - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+    value: org.postgresql.Driver
+  - key: SPRING_DATASOURCE_PASSWORD
+    value: M6xdpLfesaKc3Jqg
+  - key: SPRING_DATASOURCE_USERNAME
+    value: postgres
+  - key: SPRING_DATASOURCE_URL
+    value: jdbc:postgresql://postgres.gfpywsfecithbjyzhklo:M6xdpLfesaKc3Jqg@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
+  - key: OLLAMA_CONNECT_TIMEOUT
+    value: PT10S
+  - key: OLLAMA_TIMEOUT
+    value: PT5M
+  - key: OLLAMA_MODEL
+    value: gemma4
+  - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+    value: true
+  region: singapore
+  healthCheckPath: /actuator/health
+  dockerContext: .
+  dockerfilePath: ./Dockerfile
+  autoDeployTrigger: commit
