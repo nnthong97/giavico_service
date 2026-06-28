@@ -27,5 +27,8 @@
 -- rnd_document_approvals
 -- rnd_document_revisions
 
+-- Process management domain
+-- process_runs
+
 -- See docs/migrate-legacy-schemas.md for optional legacy data migration guidance
 -- from the former per-service schemas.

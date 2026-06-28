@@ -34,6 +34,15 @@ GIAVICO_CORS_ALLOWED_ORIGINS=https://<frontend-domain>
 OLLAMA_BASE_URL=https://<hosted-ollama-endpoint>
 ```
 
+Do not paste Supabase's full `postgresql://user:password@host:port/database`
+string into `SPRING_DATASOURCE_URL`. Spring's JDBC URL should contain only the
+host, port, database, and query parameters. Put the user and password in
+`SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`.
+
+For local shell testing, do not leave placeholder values such as
+`https://<frontend-domain>` in `.env.supabase.local`. Shells like zsh can treat
+angle brackets as redirection syntax when the file is sourced.
+
 Supabase pooler usernames often include the project reference, for example:
 
 ```text
@@ -53,6 +62,17 @@ Use the exact username shown by Supabase.
 ```text
 https://<render-service-domain>/actuator/health
 ```
+
+Before deploying, test the same Supabase values locally:
+
+```bash
+zsh scripts/check-supabase-db.sh .env.supabase.local
+```
+
+If this command returns `FATAL: password authentication failed`, the issue is
+with the Supabase database password or username, not with Spring Boot or Render.
+Reset the database password in Supabase, update `.env.supabase.local`, then use
+the same values in Render.
 
 ## 4. First Database Boot
 
