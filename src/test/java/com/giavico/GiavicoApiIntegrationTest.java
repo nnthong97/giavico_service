@@ -222,4 +222,62 @@ class GiavicoApiIntegrationTest {
         mockMvc.perform(delete("/api/rnd-documents/{id}", id))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void processRunPersistsStepStateAndFreezesCompletedData() throws Exception {
+        String response = mockMvc.perform(post("/api/process-runs")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "workflowId": "general",
+                                  "title": "General process",
+                                  "owner": "R&D User",
+                                  "currentStepId": "email",
+                                  "status": "ACTIVE",
+                                  "stepStatuses": {"email": "active", "extract": "pending"},
+                                  "stepData": {"email": {"subject": "Yuzu request"}},
+                                  "documentRecords": {},
+                                  "activityLog": []
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.stepData.email.subject").value("Yuzu request"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String id = objectMapper.readTree(response).path("uuid").asText();
+
+        mockMvc.perform(get("/api/process-runs/latest").param("workflowId", "general"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid").value(id));
+
+        String completed = """
+                {
+                  "workflowId": "general",
+                  "title": "General process",
+                  "owner": "R&D User",
+                  "currentStepId": "extract",
+                  "status": "ACTIVE",
+                  "stepStatuses": {"email": "done", "extract": "done"},
+                  "stepData": {"email": {"subject": "Yuzu request"}, "extract": {"brix": "11.2"}},
+                  "documentRecords": {"email-request": {"title": "Yuzu request"}},
+                  "activityLog": [{"title": "Completed", "detail": "All steps done"}]
+                }
+                """;
+
+        mockMvc.perform(post("/api/process-runs/{id}/complete", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(completed))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.completedAt").isNotEmpty())
+                .andExpect(jsonPath("$.documentRecords.email-request.title").value("Yuzu request"));
+
+        mockMvc.perform(put("/api/process-runs/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(completed))
+                .andExpect(status().isBadRequest());
+    }
 }
