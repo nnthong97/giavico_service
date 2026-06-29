@@ -68,7 +68,8 @@ public class DocumentPdfExportService {
                 FONT.remove();
             }
         } catch (IOException exception) {
-            throw new IllegalStateException("Unable to generate PDF for " + document.documentNumber(), exception);
+            throw new PdfExportException("Unable to generate PDF for " + document.documentNumber()
+                    + ". Please check that the source template is readable and the field values are valid.");
         }
     }
 
@@ -271,8 +272,9 @@ public class DocumentPdfExportService {
     }
 
     private void text(PDPageContentStream canvas, String value, float x, float y, float size) throws IOException {
-        if (value.isBlank()) return;
-        canvas.beginText(); canvas.setFont(font(), size); canvas.newLineAtOffset(x, y); canvas.showText(value); canvas.endText();
+        String safe = pdfText(value);
+        if (safe.isBlank()) return;
+        canvas.beginText(); canvas.setFont(font(), size); canvas.newLineAtOffset(x, y); canvas.showText(safe); canvas.endText();
     }
 
     private void fitted(PDPageContentStream canvas, String value, float x, float y, float width, float maxSize) throws IOException {
@@ -322,7 +324,22 @@ public class DocumentPdfExportService {
         while (end > 0 && font().getStringWidth(value.substring(0, end).stripTrailing() + suffix) / 1000 * size > width) end--;
         return value.substring(0, end).stripTrailing() + suffix;
     }
-    private static String pdfText(String value) { return value; }
+    private static String pdfText(String value) throws IOException {
+        if (value == null || value.isBlank()) return "";
+        StringBuilder safe = new StringBuilder();
+        for (int offset = 0; offset < value.length(); ) {
+            int codePoint = value.codePointAt(offset);
+            offset += Character.charCount(codePoint);
+            if (Character.isISOControl(codePoint)) {
+                safe.append(' ');
+            } else if (font() instanceof PDType0Font type0Font && !type0Font.hasGlyph(codePoint)) {
+                safe.append('?');
+            } else {
+                safe.appendCodePoint(codePoint);
+            }
+        }
+        return safe.toString().replaceAll("\\s+", " ").strip();
+    }
     private static PDFont font() { return FONT.get(); }
 
     @FunctionalInterface
