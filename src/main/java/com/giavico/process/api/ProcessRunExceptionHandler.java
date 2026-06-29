@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -44,6 +45,19 @@ public class ProcessRunExceptionHandler {
                         (left, right) -> left
                 ));
         return response(HttpStatus.BAD_REQUEST, "Request validation failed.", request, fields);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    ResponseEntity<ErrorResponse> missingParameter(
+            MissingServletRequestParameterException error,
+            HttpServletRequest request
+    ) {
+        return response(
+                HttpStatus.BAD_REQUEST,
+                "Missing required query parameter: " + error.getParameterName() + ".",
+                request,
+                Map.of(error.getParameterName(), "Required query parameter is missing.")
+        );
     }
 
     private ResponseEntity<ErrorResponse> response(

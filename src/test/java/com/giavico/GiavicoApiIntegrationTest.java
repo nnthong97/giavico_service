@@ -253,6 +253,11 @@ class GiavicoApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uuid").value(id));
 
+        mockMvc.perform(get("/api/process-runs/latest"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Missing required query parameter: workflowId."))
+                .andExpect(jsonPath("$.fieldErrors.workflowId").value("Required query parameter is missing."));
+
         String completed = """
                 {
                   "workflowId": "general",
