@@ -21,6 +21,6 @@ class DocumentFieldValidatorTest {
     void rejectsLockedTemplateUntilUnlockedSourceIsProvided() {
         assertThatThrownBy(() -> validator.validate(DocumentType.PRODUCT_CONFIRMATION, Map.of()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("unlocked source PDF");
+                .hasMessageContaining("unlocked source file");
     }
 }

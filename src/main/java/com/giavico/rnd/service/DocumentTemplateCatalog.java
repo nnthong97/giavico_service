@@ -141,7 +141,34 @@ public class DocumentTemplateCatalog {
                     acceptanceFields(true, true), approvals(role("General manager", "Tổng giám đốc", "總經理"), role("Raw material manager", "Chủ quản nguyên liệu", "原料部主管"), role("Technical manager", "Chủ quản kỹ thuật", "技術部主管"), role("Prepared by", "Người lập biểu", "製表人"))),
 
             template(DocumentType.PRODUCT_CONFIRMATION, "product", name("Coordination Meeting Product Confirmation", "Phiếu xác nhận sản phẩm họp thỏa thuận", "協調會產品確認單"), false,
-                    List.of(field("lockedSourceNotice", "An unlocked source PDF is required before this template can be configured.", "Cần bản PDF đã mở khóa để cấu hình chính xác biểu mẫu này.", "需要未加密的來源 PDF 才能準確設定此表單。", "notice", false, GENERAL)), List.of())
+                    List.of(field("lockedSourceNotice", "An unlocked source PDF is required before this template can be configured.", "Cần bản PDF đã mở khóa để cấu hình chính xác biểu mẫu này.", "需要未加密的來源 PDF 才能準確設定此表單。", "notice", false, GENERAL)), List.of()),
+
+            template(DocumentType.FOREIGN_RETURN_SAMPLE_CONTACT, "sample",
+                    name("Foreign Returned Sample Contact Form", "Phiếu liên hệ mẫu nước ngoài hồi xưởng", "國外回廠樣品聯繫表"), true,
+                    foreignReturnSampleFields(), approvals(role("Department manager", "Chủ quản bộ phận", "主管簽核"), role("Prepared by", "Người lập biểu", "填表人"))),
+
+            template(DocumentType.NEW_PRODUCT_PRODUCTION_CONTACT, "sample",
+                    name("New Product Production Contact Form", "Phiếu liên hệ chế biến sản phẩm mới", "新產品製作連絡單"), true,
+                    newProductContactFields(false), approvals(role("Product technology supervisor", "Chủ quản kỹ thuật sản phẩm", "產技課主管"),
+                    role("Product technology", "Kỹ thuật sản phẩm", "產技課"), role("Unit manager", "Chủ quản đơn vị", "單位主管"), role("Prepared by", "Người lập biểu", "填表"))),
+
+            template(DocumentType.NEW_PRODUCT_SAMPLE_PROCESSING_CONTACT, "sample",
+                    name("New Product Sample Processing Contact Form", "Đơn liên hệ chế biến hàng mẫu", "新產品製作連絡單"), true,
+                    newProductContactFields(true), approvals(role("R&D manager", "Chủ quản Nghiên cứu Phát triển", "研發主管"),
+                    role("Research department", "Phòng Nghiên cứu", "研究課"), role("Business manager", "Chủ quản Kinh doanh", "業務主管"), role("Prepared by", "Người lập biểu", "填表"))),
+
+            template(DocumentType.SAMPLE_PRODUCTION_CONTACT, "sample",
+                    name("Sample Production Contact Form", "Phiếu liên hệ chế biến mẫu", "樣品製作連絡單"), true,
+                    sampleProductionContactFields(), approvals(role("General manager", "Tổng giám đốc", "總經理"), role("R&D manager", "Giám đốc R&D", "研發經理"),
+                    role("Business manager", "Chủ quản kinh doanh", "業務主管"), role("Department manager", "Chủ quản bộ phận", "部門主管"), role("Prepared by", "Người lập biểu", "填表人"))),
+
+            template(DocumentType.SAMPLE_SHIPMENT_NOTICE, "sample",
+                    name("Sample Shipment Notice", "Bảng thông báo gửi mẫu", "寄樣通知單"), true,
+                    sampleShipmentNoticeFields(), approvals(role("Unit manager", "Chủ quản đơn vị", "單位主管"), role("Prepared by", "Người lập biểu", "製表者"))),
+
+            template(DocumentType.SAMPLE_EXPORT_INVOICE, "sample",
+                    name("Sample Export Invoice", "Hóa đơn gửi mẫu", "樣品出口發票"), true,
+                    sampleExportInvoiceFields(), List.of())
     );
 
     public List<Template> findAll() { return templates; }
@@ -236,7 +263,156 @@ public class DocumentTemplateCatalog {
             case SEMI_FINISHED_ACCEPTANCE -> "semi-finished-acceptance.pdf";
             case RAW_MATERIAL_ACCEPTANCE -> "raw-material-acceptance.pdf";
             case PRODUCT_CONFIRMATION -> "product-confirmation-locked.pdf";
+            case FOREIGN_RETURN_SAMPLE_CONTACT -> "foreign-return-sample-contact.doc";
+            case NEW_PRODUCT_PRODUCTION_CONTACT -> "new-product-production-contact.doc";
+            case NEW_PRODUCT_SAMPLE_PROCESSING_CONTACT -> "new-product-sample-processing-contact.doc";
+            case SAMPLE_PRODUCTION_CONTACT -> "sample-production-contact.doc";
+            case SAMPLE_SHIPMENT_NOTICE -> "sample-shipment-notice.xlsx";
+            case SAMPLE_EXPORT_INVOICE -> "sample-export-invoice.xlsx";
         };
+    }
+
+    private static List<Field> foreignReturnSampleFields() {
+        return List.of(
+                field("documentNumber", "Number", "Số phiếu", "NO", "text", false, GENERAL),
+                field("date", "Date", "Ngày", "日期", "date", true, GENERAL),
+                field("requester", "Requester", "Người giao việc", "交辦人", "text", true, GENERAL),
+                select("returnGrade", "Returned sample grade", "Cấp mẫu hồi xưởng", "樣品回廠級數", false, GENERAL, option("A", "A", "A"), option("B", "B", "B"), option("C", "C", "C")),
+                field("productName", "Product name", "Tên sản phẩm", "品名", "text", true, GENERAL),
+                field("productCode", "Product code", "Mã sản phẩm", "代號", "text", true, GENERAL),
+                select("developmentImportance", "Sample development importance", "Mức độ quan trọng phát triển mẫu", "樣品開發重要性", false, GENERAL, option("A", "A", "A"), option("B", "B", "B"), option("C", "C", "C")),
+                field("quantity", "Quantity", "Số lượng", "數量", "text", false, GENERAL),
+                field("completionDeadline", "Completion deadline", "Thời hạn hoàn thành", "完成期限", "date", false, GENERAL),
+                field("packaging", "Packaging", "Bao bì", "包裝", "text", false, GENERAL),
+                field("storageType", "Storage type", "Trạng thái lưu giữ", "儲存型態", "text", false, GENERAL),
+                field("purpose", "Purpose", "Mục đích", "目的", "textarea", true, PROCESS),
+                field("instruction", "Instructions", "Chỉ thị", "指示", "textarea", false, PROCESS),
+                specification("brix", "Brix", "Brix", "糖度"), specification("acid", "Acid", "Acid", "酸度"), specification("ph", "pH", "pH", "酸鹼值"),
+                specification("solid", "Solid", "Chất rắn", "固形量"), specification("hardness", "Hardness", "Độ cứng", "硬度"), specification("size", "Size", "Kích cỡ", "SIZE"),
+                specification("pulpOver12mm", "Pulp size > 12 mm", "Kích thước thịt quả > 12 mm", "果肉大小(>12mm)"),
+                specification("pulp8To12mm", "Pulp size 8-12 mm", "Kích thước thịt quả 8-12 mm", "果肉大小(8-12mm)"),
+                specification("pulpUnder8mm", "Pulp size < 8 mm", "Kích thước thịt quả < 8 mm", "果肉大小(<8mm)"),
+                field("variety", "Variety", "Giống", "品種", "text", false, SPECIFICATION),
+                field("maturity", "Maturity", "Độ chín", "成熟度", "text", false, SPECIFICATION),
+                field("origin", "Origin", "Xuất xứ", "產地", "text", false, SPECIFICATION),
+                field("source", "Source", "Nguồn", "來源", "text", false, SPECIFICATION),
+                field("preparationStatus", "Preparation status", "Tình trạng xử lý", "調理狀況", "textarea", false, PROCESS),
+                field("processDescription", "Process description", "Mô tả quy trình", "製程說明", "textarea", false, PROCESS),
+                field("cautions", "Cautions", "Lưu ý", "注意事項", "textarea", false, PROCESS),
+                field("notes", "Notes", "Ghi chú", "備註", "textarea", false, GENERAL),
+                field("resultAnalysis", "Result analysis", "Phân tích kết quả", "結果分析", "textarea", false, PROCESS),
+                field("reply", "Reply", "Phản hồi", "回覆", "textarea", false, PROCESS));
+    }
+
+    private static List<Field> newProductContactFields(boolean bilingualVersion) {
+        List<Field> fields = new java.util.ArrayList<>(List.of(
+                select("sampleType", "Sample type", "Loại mẫu", "樣品類型", true, GENERAL,
+                        option("New sample", "Hàng mẫu mới", "新樣品"), option("Changed sample", "Hàng mẫu cải tiến / thay đổi", "新樣品變更")),
+                field("submissionRound", "Submission round", "Lần gửi mẫu", "送樣次數", "number", false, GENERAL),
+                field("date", "Date", "Ngày", "日期", "date", true, GENERAL),
+                field("documentNumber", "Number", "Số phiếu", "NO", "text", false, GENERAL),
+                field("customerCode", "Customer code", "Mã khách hàng", "客戶代號", "text", true, GENERAL),
+                field("salesRegionOrFinalBuyer", "Sales region or final buyer", "Khu vực tiêu thụ hoặc người mua cuối", "銷售地區或最終買方", "text", true, GENERAL),
+                field("productName", "Product name", "Tên hàng", "品名", "text", true, GENERAL),
+                select("urgency", "Sample urgency", "Mẫu khẩn", "樣品急迫性", true, GENERAL, option("Urgent", "Khẩn", "急件"), option("Normal", "Thông thường", "一般件")),
+                field("sampleQuantity", "Sample quantity", "Số lượng mẫu", "樣品數量", "text", false, GENERAL),
+                select("importance", "Sample importance", "Mức độ quan trọng", "樣品重要性", false, GENERAL, option("A", "A", "A"), option("B", "B", "B")),
+                field("specialRequirement", "Special requirement", "Yêu cầu đặc biệt", "特殊要求", "textarea", false, GENERAL),
+                field("desiredCompletionDate", "Desired completion date", "Ngày mong muốn hoàn thành", "希望完成日期", "date", false, GENERAL),
+                field("comparisonSample", "Comparison sample / competitor / price / annual demand", "Mẫu đối chứng / đối thủ / giá / nhu cầu năm", "比對品／競爭廠商／價格／年度需求量", "textarea", false, GENERAL),
+                checkbox("usageType", "Usage type", "Trạng thái sử dụng", "使用型態", PROCESS, option("Juice", "Nước ép", "果汁"), option("Mixed juice", "Nước ép tổng hợp", "綜合果汁"),
+                        option("Single product", "Đơn phẩm", "單品"), option("Syrup", "Nước đường cô đặc", "濃糖"), option("Jelly", "Thạch", "果凍"),
+                        option("Alcohol", "Rượu", "酒類"), option("Dairy", "Sữa", "乳製品"), option("Other", "Khác", "其他")),
+                field("juiceRatio", "Original juice ratio %", "Tỷ lệ nguyên chất %", "原汁率", "number", false, PROCESS),
+                field("otherIngredients", "Other content ingredients", "Nguyên liệu nội dung khác", "其他內容物原料", "textarea", false, PROCESS),
+                checkbox("packagingType", "Packaging type", "Trạng thái bao bì", "包裝型態", PROCESS, option("Can", "Lon", "Can"), option("PET", "PET", "PET"),
+                        option("Foil pack", "Bao bạc", "鋁箔包"), option("Glass bottle", "Hũ thủy tinh", "玻璃瓶"), option("Cup", "Ly", "杯裝"),
+                        option("Fresh house", "Fresh house", "新鮮屋"), option("Tetra Pak", "Tetra Pak", "利樂包")),
+                checkbox("salesMethod", "Sales method", "Phương thức tiêu thụ", "銷售方式", PROCESS, option("Ambient", "Nhiệt độ thường", "常溫"), option("Chilled", "Hàng mát", "冷藏"), option("Frozen", "Hàng lạnh", "冷凍")),
+                field("productionCondition", "Production conditions", "Điều kiện làm mẫu", "製作條件", "textarea", false, PROCESS),
+                select("formulaData", "Formula data", "Tài liệu phối thức", "配方資料", false, PROCESS, option("Required", "Cần cung cấp", "須提供"), option("Not required", "Không cần cung cấp", "不須提供")),
+                field("rawMaterialCostControl", "Raw material cost control", "Khống chế giá thành nguyên liệu", "原物料成本控制", "text", false, PROCESS),
+                checkbox("productType", "Product type", "Đặc tính sản phẩm", "產品型態", PROCESS, option("Clear", "Trong", "澄清"), option("Cloudy", "Đục", "混濁"),
+                        option("Concentrate", "Nước cô đặc", "濃縮汁"), option("Juice", "Nước ép", "原汁"), option("High syrup", "Đường cao độ", "濃糖汁"), option("Other", "Khác", "其他")),
+                field("productSolid", "Product solid %", "Chất rắn sản phẩm %", "固形物", "number", false, SPECIFICATION),
+                checkbox("storageType", "Storage type", "Trạng thái lưu giữ", "儲存型態", PROCESS, option("Frozen", "Hàng lạnh", "冷凍"), option("Chilled", "Hàng mát", "冷藏"), option("Ambient", "Nhiệt độ thường", "常溫")),
+                select("customerSpecificationRequired", "Customer specification requirement", "Yêu cầu quy cách khách hàng", "客戶規格", false, SPECIFICATION,
+                        option("Required", "Có yêu cầu quy cách", "有規格要求"), option("Not required", "Không yêu cầu quy cách", "無規格要求"))));
+        for (String[] item : List.of(new String[]{"brix", "Brix", "Brix", "糖度"}, new String[]{"tpc", "TPC", "Tổng số vi sinh", "總生菌數"}, new String[]{"acid", "Acid", "Acid", "酸度"},
+                new String[]{"yeastMold", "Yeast / Mold", "Nấm men / nấm mốc", "黴菌／酵母菌"}, new String[]{"ph", "pH", "pH", "酸鹼值"}, new String[]{"tab", "TAB", "TAB", "TAB"},
+                new String[]{"an", "AN", "AN", "甲醛態氮"}, new String[]{"transmittanceAbsorbance", "Transmittance / absorbance", "Độ truyền quang / hấp thụ", "透光度／吸光度"},
+                new String[]{"solid", "Solid", "Chất rắn", "固形物"}, new String[]{"otherSpecification", "Other", "Khác", "其他"})) fields.add(specification(item[0], item[1], item[2], item[3]));
+        fields.add(field("notes", "Notes", "Ghi chú", "備註", "textarea", false, GENERAL));
+        fields.add(field(bilingualVersion ? "businessManagerOpinion" : "sampleSubmissionAndCustomerOpinion",
+                bilingualVersion ? "Business manager opinion" : "Sample submission record and customer opinion",
+                bilingualVersion ? "Ý kiến chủ quản kinh doanh" : "Ghi nhận gửi mẫu và ý kiến khách hàng",
+                bilingualVersion ? "業務主管意見" : "送樣記錄及客戶意見", "textarea", false, APPROVAL));
+        fields.add(field(bilingualVersion ? "researchReply" : "unitManagerOpinion",
+                bilingualVersion ? "Research reply" : "Unit manager opinion",
+                bilingualVersion ? "Phản hồi phòng kỹ thuật" : "Ý kiến chủ quản đơn vị",
+                bilingualVersion ? "研究回覆" : "單位主管意見", "textarea", false, APPROVAL));
+        fields.add(field("receivedDate", "Received date", "Ngày nhận đơn", "收單日期", "date", false, APPROVAL));
+        fields.add(field("completedDate", "Completed date", "Ngày hoàn thành", "完成日期", "date", false, APPROVAL));
+        fields.add(field("sampleCode", "Sample code", "Mã số sản phẩm", "樣品代號", "text", false, APPROVAL));
+        fields.add(field("sampleLot", "Sample lot", "Mã số hàng mẫu", "樣品批號", "text", false, APPROVAL));
+        fields.add(field("packagingQuantity", "Packaging quantity", "Số lượng bao bì", "包裝數量", "text", false, APPROVAL));
+        fields.add(field("resultAnalysis", "Result analysis", "Kết quả phân tích", "結果分析", "textarea", false, APPROVAL));
+        return List.copyOf(fields);
+    }
+
+    private static List<Field> sampleProductionContactFields() {
+        return List.of(
+                checkbox("sampleOptions", "Sample options", "Tùy chọn mẫu", "樣品選項", GENERAL, option("No sample reply required", "Không cần trả lời mẫu", "不須回覆樣品"),
+                        option("General sample / new product", "Mẫu thông thường / sản phẩm mới", "一般樣品／新產品"), option("Advance shipment sample", "Mẫu hàng trước", "先貨樣品")),
+                field("date", "Date", "Ngày", "日期", "date", true, GENERAL), field("documentNumber", "Number", "Số phiếu", "NO", "text", false, GENERAL),
+                field("customer", "Customer", "Khách hàng", "客戶", "text", true, GENERAL), field("completionDeadline", "Completion deadline", "Thời hạn hoàn thành", "完成期限", "date", false, GENERAL),
+                field("regionOrFinalBuyer", "Region or final buyer", "Khu vực hoặc người mua cuối", "地區或最終買方", "text", false, GENERAL),
+                field("sampleIssueDate", "Sample issue date", "Ngày phát mẫu", "發樣日期", "date", false, GENERAL), field("productNameAndCode", "Product name and code", "Tên và mã sản phẩm", "品名、代號", "text", true, GENERAL),
+                field("quantity", "Quantity", "Số lượng", "數量", "text", false, GENERAL), field("sampleLot", "Sample lot", "Số lô mẫu", "樣品批號", "text", false, GENERAL),
+                field("packaging", "Packaging", "Bao bì", "包裝", "text", false, GENERAL),
+                checkbox("productType", "Product type", "Đặc tính sản phẩm", "產品型態", PROCESS, option("Clear", "Trong", "澄清"), option("Cloudy", "Đục", "混濁"),
+                        option("Concentrate", "Nước cô đặc", "濃縮汁"), option("Juice", "Nước ép", "原汁"), option("High syrup", "Đường cao độ", "濃糖汁")),
+                specification("brix", "Brix", "Brix", "糖度"), specification("acid", "Acid", "Acid", "酸度"), specification("brixAcidRatio", "Brix / acid ratio", "Tỷ lệ Brix / Acid", "糖酸比"),
+                specification("an", "AN", "AN", "甲醛態氮"), specification("ph", "pH", "pH", "酸鹼值"), specification("solid", "Solid", "Chất rắn", "固形物"),
+                specification("ash", "Ash", "Tro", "灰份"), specification("abs", "ABS", "ABS", "吸光度"), specification("transmittance", "Transmittance", "Độ truyền quang", "透光度"),
+                specification("otherSpecification", "Other", "Khác", "其他"),
+                field("mainIngredients", "Main content ingredients", "Nguyên liệu chính", "主要內容物原料", "textarea", false, PROCESS),
+                field("defaultJuiceRatio", "Default juice ratio", "Tỷ lệ nguyên chất dự kiến", "預設原汁率", "number", false, PROCESS),
+                checkbox("manufacturingType", "Manufacturing type", "Hình thức sản xuất", "製造型態", PROCESS, option("Juice", "Nước ép", "果汁"), option("Jelly", "Thạch", "果凍"), option("Alcohol", "Rượu", "酒類"), option("Other", "Khác", "其他")),
+                checkbox("salesMethod", "Sales method", "Phương thức tiêu thụ", "銷售方式", PROCESS, option("Chilled", "Hàng mát", "冷藏"), option("Ambient", "Nhiệt độ thường", "常溫"), option("Can", "Dạng lon", "罐型")),
+                field("productionCondition", "Production conditions", "Điều kiện làm mẫu", "製作條件", "textarea", false, PROCESS),
+                field("formulaCostControl", "Formula raw material cost control", "Khống chế chi phí nguyên liệu công thức", "配方原物料之成本控制", "text", false, PROCESS),
+                select("formulaData", "Formula data", "Tài liệu phối thức", "配方資料", false, PROCESS, option("Required", "Cần cung cấp", "須提供"), option("Not required", "Không cần cung cấp", "不須提供")),
+                field("resultAnalysis", "Result analysis", "Phân tích kết quả", "結果分析", "textarea", false, APPROVAL),
+                field("notes", "Notes", "Ghi chú", "備註", "textarea", false, GENERAL));
+    }
+
+    private static List<Field> sampleShipmentNoticeFields() {
+        return List.of(
+                field("date", "Date", "Ngày", "日期", "date", true, GENERAL),
+                table("shipments", "Shipment rows", "Danh sách gửi mẫu", "寄樣明細", TRACKING,
+                        column("orderNumber", "Order number", "Đơn hàng", "單號"), column("customerCode", "Customer code", "Mã khách hàng", "客戶代號"),
+                        column("preparedBy", "Prepared by", "Người lập đơn", "填表人"), column("sampleSerial", "Sample serial", "Mã số hàng mẫu", "流水號"),
+                        column("productCode", "Product code", "Mã sản phẩm", "產品代號"), column("productType", "Type", "Trạng thái", "型態"),
+                        column("packaging", "Packaging", "Bao bì", "包裝"), column("storage", "Storage", "Lưu giữ", "儲存"),
+                        column("quantity", "Quantity", "Số lượng", "數量"), column("recipient", "Recipient", "Người nhận mẫu", "收件者")),
+                field("notes", "Notes", "Ghi chú", "GHI CHÚ", "textarea", false, GENERAL),
+                table("recipientDirectory", "Recipient directory", "Danh bạ người nhận", "收件者通訊錄", TRACKING,
+                        column("region", "Region", "Khu vực", "地區"), column("attention", "Attention / recipient", "Người nhận", "收件者"),
+                        column("companyAddress", "Company and address", "Công ty và địa chỉ", "公司與地址"), column("telephone", "Telephone", "Điện thoại", "電話")));
+    }
+
+    private static List<Field> sampleExportInvoiceFields() {
+        return List.of(
+                field("transporter", "Transporter", "Đơn vị vận chuyển", "運輸者", "text", false, GENERAL),
+                field("date", "Date", "Ngày", "日期", "date", true, GENERAL),
+                table("invoiceItems", "Invoice items", "Dòng hóa đơn", "發票明細", TRACKING,
+                        column("number", "No.", "STT", "No"), column("product", "Product", "Sản phẩm", "產品"),
+                        column("quality", "Quality", "Chất lượng", "品質"), column("package", "Package", "Bao bì", "包裝"),
+                        column("storage", "Storage", "Lưu giữ", "儲存"), column("from", "From", "Từ", "從"),
+                        column("to", "To", "Đến", "到"), column("price", "Price", "Giá", "價格"), column("note", "Note", "Ghi chú", "備註")),
+                field("totalWeight", "Total weight", "Tổng khối lượng", "總重量", "text", false, GENERAL),
+                field("customsNote", "Customs note", "Ghi chú hải quan", "海關備註", "textarea", false, GENERAL));
     }
     private static Field field(String key, String en, String vi, String zh, String type, boolean required, String section) { return new Field(key, name(en, vi, zh), type, required, section, List.of(), List.of()); }
     private static Field specification(String key, String en, String vi, String zh) { return field(key, en, vi, zh, "specification", false, SPECIFICATION); }
