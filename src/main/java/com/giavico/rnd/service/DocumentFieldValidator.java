@@ -18,7 +18,7 @@ public class DocumentFieldValidator {
     public void validate(DocumentType type, Map<String, Object> values) {
         var template = catalog.find(type);
         if (!template.sourceAvailable()) {
-            throw new IllegalArgumentException("Template %s requires an unlocked source PDF before documents can be created.".formatted(template.formNumber()));
+            throw new IllegalArgumentException("Template %s requires an unlocked source file before documents can be created.".formatted(template.formNumber()));
         }
         for (Field field : template.fields()) {
             if (field.required() && isEmpty(values.get(field.key()))) {

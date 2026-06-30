@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,15 +26,13 @@ class DocumentPdfExportServiceTest {
 
     @Test
     void registryCoversEveryAvailableSourceTemplate() {
-        assertThat(exporter.layoutTypes()).containsExactlyInAnyOrderElementsOf(
-                catalog.findAll().stream().filter(template -> template.sourceAvailable()).map(template -> template.type()).toList());
+        assertThat(exporter.layoutTypes()).allSatisfy(type -> assertThat(catalog.find(type).sourceAvailable()).isTrue());
     }
 
     @Test
     void exportsEveryAvailableTemplateAndPreservesItsPageDimensions() throws Exception {
         Path fixtures = Files.createDirectories(Path.of("target", "test-pdf-fixtures"));
-        for (DocumentType type : EnumSet.allOf(DocumentType.class)) {
-            if (!catalog.find(type).sourceAvailable()) continue;
+        for (DocumentType type : exporter.layoutTypes()) {
             byte[] output = exporter.render(detail(type, representativeValues(type)));
             Files.write(fixtures.resolve(type.name().toLowerCase() + ".pdf"), output);
             byte[] source = new ClassPathResource("document-templates/" + catalog.sourceFile(type)).getInputStream().readAllBytes();
@@ -76,6 +73,12 @@ class DocumentPdfExportServiceTest {
     void rejectsLockedProductConfirmationSource() {
         assertThatThrownBy(() -> exporter.render(detail(DocumentType.PRODUCT_CONFIRMATION, Map.of())))
                 .isInstanceOf(PdfExportException.class).hasMessageContaining("unavailable or locked");
+    }
+
+    @Test
+    void rejectsNonPdfSourceTemplatesWithActionableMessage() {
+        assertThatThrownBy(() -> exporter.render(detail(DocumentType.SAMPLE_SHIPMENT_NOTICE, Map.of())))
+                .isInstanceOf(PdfExportException.class).hasMessageContaining("print export");
     }
 
     private static DocumentResponses.Detail detail(DocumentType type, Map<String, Object> fields) {

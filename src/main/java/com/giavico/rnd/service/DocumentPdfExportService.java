@@ -51,6 +51,11 @@ public class DocumentPdfExportService {
         if (!templates.find(document.type()).sourceAvailable()) {
             throw new PdfExportException("The source PDF for " + document.type() + " is unavailable or locked.");
         }
+        LayoutRenderer renderer = renderers.get(document.type());
+        if (renderer == null) {
+            throw new PdfExportException("PDF overlay export is not configured for " + document.type()
+                    + ". Use the print export or download the original source template instead.");
+        }
         String source = "document-templates/" + templates.sourceFile(document.type());
         try {
             byte[] sourcePdf = new ClassPathResource(source).getInputStream().readAllBytes();
@@ -58,8 +63,6 @@ public class DocumentPdfExportService {
                 FONT.set(PDType0Font.load(pdf, new ClassPathResource("document-templates/NotoSansTC.ttf").getInputStream()));
                 PDPage page = pdf.getPage(0);
                 try (PDPageContentStream canvas = new PDPageContentStream(pdf, page, PDPageContentStream.AppendMode.APPEND, true, true)) {
-                    LayoutRenderer renderer = renderers.get(document.type());
-                    if (renderer == null) throw new PdfExportException("No PDF layout is configured for " + document.type() + ".");
                     renderer.render(canvas, document);
                 }
                 pdf.save(output);

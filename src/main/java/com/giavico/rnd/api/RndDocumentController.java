@@ -16,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,16 +49,16 @@ public class RndDocumentController {
         return templates.find(type);
     }
 
-    @GetMapping(value = "/templates/{type}/source", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping("/templates/{type}/source")
     public ResponseEntity<Resource> templateSource(@PathVariable DocumentType type) {
         if (!templates.find(type).sourceAvailable()) {
-            throw new PdfExportException("The source PDF for " + type + " is unavailable or locked.");
+            throw new PdfExportException("The source file for " + type + " is unavailable or locked.");
         }
         String filename = templates.sourceFile(type);
         Resource resource = new ClassPathResource("document-templates/" + filename);
-        if (!resource.exists()) throw new PdfExportException("The source PDF for " + type + " is missing.");
+        if (!resource.exists()) throw new PdfExportException("The source file for " + type + " is missing.");
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
-                .contentType(MediaType.APPLICATION_PDF).body(resource);
+                .contentType(MediaTypeFactory.getMediaType(filename).orElse(MediaType.APPLICATION_OCTET_STREAM)).body(resource);
     }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
